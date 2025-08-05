@@ -1,0 +1,21 @@
+#Annotation for server files:
+database - queries to database from server
+server - server set up
+
+#Annotation for client files:
+removedialog - remove user from chat
+adddialog - add user to chat
+chatmanagement - create new chat
+dialog - authentication/ move to registration
+mainwindow - client set up
+new_chat - create new chat
+registration - registration user
+
+#How to create a cool database:
+CREATE TABLE users( id varchar(255) PRIMARY KEY, name varchar(255) NOT NULL, surname varchar(255) NOT NULL, password varchar(255) NOT NULL)
+
+CREATE TABLE chats(title varchar(255) PRIMARY KEY, admin VARCHAR(255) NOT NULL, FOREIGN KEY (admin) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE);
+
+CREATE TABLE chat_members(chat_title varchar(255) NOT NULL, user_id VARCHAR(255) NOT NULL, PRIMARY KEY (chat_title, user_id), FOREIGN KEY (chat_title) REFERENCES chats(title) ON UPDATE CASCADE ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE);
+
+CREATE TABLE messages(text VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, id VARCHAR (255) NOT NULL, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (title) REFERENCES chats(title) ON UPDATE CASCADE ON DELETE CASCADE, FOREIGN KEY (id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE);
