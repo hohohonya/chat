@@ -1,0 +1,11 @@
+client/release
+client/debug
+client/build
+client/.qmake.stash
+client/Makefile
+client/Makefile.Debug
+client/Makefile.Release
+client/osi3.pro.user
+
+server/build
+server/osi_server.pro.user
