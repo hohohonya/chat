@@ -229,6 +229,7 @@ void Server::processRequest(QTcpSocket *socket, const QByteArray &data)
                 QJsonObject updateRequest;
                 updateRequest["action"] = "updateUserChats";
                 updateRequest["username"] = removedUser;
+                updateRequest["chatTitle"] = chatTitle;
 
                 for (QTcpSocket *client : clients) {
                     sendResponse(client, updateRequest);
@@ -303,6 +304,12 @@ void Server::processRequest(QTcpSocket *socket, const QByteArray &data)
 
             bool isAdmin = db.isUserAdmin(chatTitle, username);
             response["isAdmin"] = isAdmin;
+    }
+    else if (action == "userLeaveChat"){
+        QString chatTitle = request["chatTitle"].toString();
+        QString username = request["username"].toString();
+        db.leaveChat(chatTitle, username);
+
     }
     else {
         response["error"] = "Unknown action";

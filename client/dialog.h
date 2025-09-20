@@ -15,6 +15,7 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = nullptr);
     ~Dialog();
+    void setSocket(QTcpSocket *soc);
 
 signals:
     void loginSuccess(const QString &username);

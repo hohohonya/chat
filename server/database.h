@@ -34,6 +34,7 @@ public:
     //bool transferAdminRights(int chatId, const QString &newAdmin);
     //bool removeUserFromChat(int chatId, const QString &user);
     //bool removeUserFromChat(const QString &chatTitle, const QString &user);
+    bool leaveChat(const QString &chatTitle, const QString &username);
 private:
     QSqlDatabase db;
 };

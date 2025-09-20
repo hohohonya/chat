@@ -13,14 +13,23 @@ Dialog::Dialog(QWidget *parent) :
     ui->setupUi(this);
 
     socket = new QTcpSocket(this);
+
+
     //socket->connectToHost("localhost", 1234);
     //socket->connectToHost("26.200.42.39", 1234);
+
+
     socket->connectToHost("26.13.49.181", 1234);
 }
 
 Dialog::~Dialog()
 {
     delete ui;
+}
+
+void Dialog::setSocket(QTcpSocket *soc)
+{
+    socket = soc;
 }
 
 
@@ -80,6 +89,7 @@ void Dialog::on_sign_clicked()
         QJsonObject response = doc.object();
         if (response["action"] == "authenticate" && response["success"].toBool()) {
             emit loginSuccess(username);
+            //this->socket;
             this->close();
         } else {
             QMessageBox::warning(this, "Login Failed", "Invalid username or password");

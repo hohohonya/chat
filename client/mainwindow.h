@@ -6,11 +6,19 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+
+
+#include "dialog.h"
+
+
+
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class Dialog;
+//class Dialog;
 class New_chat;
 class RemoveDialog;
 class AddDialog;

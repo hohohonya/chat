@@ -327,3 +327,36 @@ bool Database::isUserAdmin(const QString &chatTitle, const QString &username)
 
     return false;
 }
+
+
+bool Database::leaveChat(const QString &chatTitle, const QString &username)
+{
+    if (isUserAdmin(chatTitle, username))
+    {
+        QSqlQuery query;
+        query.prepare("SELECT user_id from chat_members WHERE chat_title = :title ORDER BY user_id LIMIT(1)");
+        query.bindValue(":title", chatTitle);
+        QString new_admin_id = query.value(0).toString();
+        query.clear();
+        if (!query.exec()) {
+            qDebug() << "Error removing user from chat:" << query.lastError().text();
+            return false;
+        }
+
+        query.prepare("UPDATE chats SET admin = :new WHERE title = :title");
+        query.bindValue(":new", new_admin_id);
+        query.bindValue(":title", chatTitle);
+        if (!query.exec()) {
+            qDebug() << "Error removing user from chat:" << query.lastError().text();
+            return false;
+        }
+
+        removeUserFromChat(chatTitle, username);
+    }
+    else
+    {
+        removeUserFromChat(chatTitle, username);
+    }
+
+    return true;
+}

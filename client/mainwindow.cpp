@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialog.h"
+//#include "dialog.h"
 #include "new_chat.h"
 #include "RemoveDialog.h"
 #include "adddialog.h"
@@ -11,6 +11,7 @@
 #include <QListWidgetItem>
 #include <QTimer>
 #include <QColor>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -57,6 +58,11 @@ void MainWindow::sendRequest(const QJsonObject &request)
 void MainWindow::on_action_triggered()
 {
     loginDialog = new Dialog(this);
+
+    //loginDialog->setSocket(socket);
+
+
+
     connect(loginDialog, &Dialog::loginSuccess, this, &MainWindow::handleLoginSuccess);
     connect(loginDialog, &Dialog::registrationSuccess, this, &MainWindow::handleRegistrationSuccess);
 
@@ -76,6 +82,27 @@ void MainWindow::on_new_chat_clicked()
 }
 void MainWindow::on_remove_clicked()
 {
+    // QJsonObject request;
+    // request["action"] = "isUserAdmin";
+    // request["username"] = currentUsername;
+    // sendRequest(request);
+    // qDebug() << isAdmin;
+
+
+    // if(!isAdmin){
+    //     QMessageBox::warning(this,"Error", "You dont have such premison");
+    // }
+    // else{
+    //     removeDialog = new RemoveDialog(this);
+    //     removeDialog->setCurrentChatTitle(currentChatTitle);
+    //     QJsonObject request;
+    //     request["action"] = "getChatUsers";
+    //     request["chatTitle"] = currentChatTitle;
+    //     sendRequest(request);
+    //     connect(removeDialog, &RemoveDialog::userRemoved, this, &MainWindow::handleUserRemovedFromChat);
+    //     removeDialog->exec();
+    // }
+
     removeDialog = new RemoveDialog(this);
     removeDialog->setCurrentChatTitle(currentChatTitle);
     QJsonObject request;
@@ -128,6 +155,8 @@ void MainWindow::on_listW_clicked(const QModelIndex &index)
     request["action"] = "isUserAdmin";
     request["username"] = currentUsername;
     sendRequest(request);
+
+    qDebug() << isAdmin;
 }
 
 void MainWindow::connectedToServer()
@@ -248,9 +277,19 @@ void MainWindow::readyRead()
          }
      }
      else if (action == "updateUserChats") {
-         if (response["username"].toString() == currentUsername) {
+        if (response["username"].toString() == currentUsername) {
+
+            if (response["chatTitle"].toString() == currentChatTitle){
+                currentChatTitle = NULL;
+                qDebug() << currentChatTitle.isEmpty();
+                ui->listW->clear();
+                ui->listWidget->clear();
+                ui->title->clear();
+            }
+
             updateChatList();
-         }
+        }
+
      }
 }
 
@@ -342,7 +381,7 @@ void MainWindow::on_leave_chat_clicked()
     QJsonObject request;
     request["action"] = "userLeaveChat";
     request["chatTitle"] = currentChatTitle;
-    requset["username"] = currentUsername;
+    request["username"] = currentUsername;
     sendRequest(request);
 
     currentChatTitle = NULL;
