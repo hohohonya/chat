@@ -86,31 +86,31 @@ void MainWindow::on_remove_clicked()
     // request["action"] = "isUserAdmin";
     // request["username"] = currentUsername;
     // sendRequest(request);
-    // qDebug() << isAdmin;
+    qDebug() << isAdmin;
 
 
-    // if(!isAdmin){
-    //     QMessageBox::warning(this,"Error", "You dont have such premison");
-    // }
-    // else{
-    //     removeDialog = new RemoveDialog(this);
-    //     removeDialog->setCurrentChatTitle(currentChatTitle);
-    //     QJsonObject request;
-    //     request["action"] = "getChatUsers";
-    //     request["chatTitle"] = currentChatTitle;
-    //     sendRequest(request);
-    //     connect(removeDialog, &RemoveDialog::userRemoved, this, &MainWindow::handleUserRemovedFromChat);
-    //     removeDialog->exec();
-    // }
+    if(!isAdmin){
+        QMessageBox::warning(this,"Error", "You dont have such premison");
+    }
+    else{
+        removeDialog = new RemoveDialog(this);
+        removeDialog->setCurrentChatTitle(currentChatTitle);
+        QJsonObject request;
+        request["action"] = "getChatUsers";
+        request["chatTitle"] = currentChatTitle;
+        sendRequest(request);
+        connect(removeDialog, &RemoveDialog::userRemoved, this, &MainWindow::handleUserRemovedFromChat);
+        removeDialog->exec();
+    }
 
-    removeDialog = new RemoveDialog(this);
-    removeDialog->setCurrentChatTitle(currentChatTitle);
-    QJsonObject request;
-    request["action"] = "getChatUsers";
-    request["chatTitle"] = currentChatTitle;
-    sendRequest(request);
-    connect(removeDialog, &RemoveDialog::userRemoved, this, &MainWindow::handleUserRemovedFromChat);
-    removeDialog->exec();
+    // removeDialog = new RemoveDialog(this);
+    // removeDialog->setCurrentChatTitle(currentChatTitle);
+    // QJsonObject request;
+    // request["action"] = "getChatUsers";
+    // request["chatTitle"] = currentChatTitle;
+    // sendRequest(request);
+    // connect(removeDialog, &RemoveDialog::userRemoved, this, &MainWindow::handleUserRemovedFromChat);
+    // removeDialog->exec();
 }
 void MainWindow::on_add_clicked()
 {
@@ -223,7 +223,8 @@ void MainWindow::readyRead()
          QJsonArray users = response["users"].toArray();
          QStringList userList;
          for (const auto &user : users) {
-             userList << user.toString();
+            if(user != currentUsername)
+                userList << user.toString();
          }
          if (removeDialog && removeDialog->isVisible()) {
              removeDialog->setUserList(userList);

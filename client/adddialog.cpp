@@ -14,7 +14,8 @@ AddDialog::AddDialog(QWidget *parent) :
     ui->setupUi(this);
 
     socket = new QTcpSocket(this);
-    socket->connectToHost("localhost", 1234);
+    //socket->connectToHost("localhost", 1234);
+    socket->connectToHost("26.13.49.181", 1234);
 }
 
 AddDialog::~AddDialog()

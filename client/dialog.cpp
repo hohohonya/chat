@@ -24,6 +24,7 @@ Dialog::Dialog(QWidget *parent) :
 
 Dialog::~Dialog()
 {
+    qDebug() << "destr running";
     delete ui;
 }
 
@@ -82,14 +83,19 @@ void Dialog::on_sign_clicked()
     sendRequest(request);
 
     if (socket->waitForReadyRead(3000)) {
+        //qDebug() << "0 step";
         QByteArray data = socket->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (!doc.isObject()) return;
 
+        //qDebug() << "1 step";
+
         QJsonObject response = doc.object();
         if (response["action"] == "authenticate" && response["success"].toBool()) {
+            //qDebug() << "2 step";
             emit loginSuccess(username);
-            //this->socket;
+            //this->socket = NULL;
+            //qDebug() << "3 step";
             this->close();
         } else {
             QMessageBox::warning(this, "Login Failed", "Invalid username or password");

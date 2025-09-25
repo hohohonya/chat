@@ -314,10 +314,25 @@ QStringList Database::getNotChatUsers(const QString &chatTitle)
 
     return users;
 }
+// bool Database::isUserAdmin(const QString &chatTitle, const QString &username)
+// {
+//     QSqlQuery query;
+//     query.prepare("SELECT admin FROM chats WHERE title = :title AND id = :id");
+//     query.bindValue(":title", chatTitle);
+//     query.bindValue(":id", username);
+
+//     if (query.exec() && query.next()) {
+//         return query.value(0).toBool();
+//     }
+
+//     return false;
+// }
+
+//}
 bool Database::isUserAdmin(const QString &chatTitle, const QString &username)
 {
     QSqlQuery query;
-    query.prepare("SELECT admin FROM chats WHERE title = :title AND id = :id");
+    query.prepare("SELECT admin FROM chats WHERE title = :title AND admin = :id");
     query.bindValue(":title", chatTitle);
     query.bindValue(":id", username);
 
@@ -329,34 +344,88 @@ bool Database::isUserAdmin(const QString &chatTitle, const QString &username)
 }
 
 
+
+// bool Database::leaveChat(const QString &chatTitle, const QString &username)
+// {
+//     if (isUserAdmin(chatTitle, username))
+//     {
+//         qDebug() << "We are at start";
+//         QSqlQuery query;
+//         query.prepare("SELECT user_id from chat_members WHERE chat_title = :title ORDER BY user_id LIMIT(1)");
+
+//         qDebug() << "first step";
+
+//         query.bindValue(":title", chatTitle);
+//         QString new_admin_id = query.value(0).toString();
+
+//         qDebug() << "second step";
+
+//         query.clear();
+//         if (!query.exec()) {
+//             qDebug() << "Error removing user from chat:" << query.lastError().text();
+//             return false;
+//         }
+
+//         qDebug() << "We are in center";
+//         query.prepare("UPDATE chats SET admin = :new WHERE title = :title");
+//         query.bindValue(":new", new_admin_id);
+//         query.bindValue(":title", chatTitle);
+//         if (!query.exec()) {
+//             qDebug() << "Error removing user from chat:" << query.lastError().text();
+//             return false;
+//         }
+
+//         removeUserFromChat(chatTitle, username);
+//     }
+//     else
+//     {
+//         removeUserFromChat(chatTitle, username);
+//     }
+
+//     return true;
+// }
+
+
 bool Database::leaveChat(const QString &chatTitle, const QString &username)
 {
     if (isUserAdmin(chatTitle, username))
     {
         QSqlQuery query;
-        query.prepare("SELECT user_id from chat_members WHERE chat_title = :title ORDER BY user_id LIMIT(1)");
+        query.prepare("SELECT user_id FROM chat_members WHERE chat_title = :title AND user_id <> :id ORDER BY user_id LIMIT 1");
         query.bindValue(":title", chatTitle);
-        QString new_admin_id = query.value(0).toString();
-        query.clear();
+        query.bindValue(":id", username);
+
+        // Выполняем запрос и проверяем ошибки
         if (!query.exec()) {
-            qDebug() << "Error removing user from chat:" << query.lastError().text();
+            qDebug() << "Error selecting new admin:" << query.lastError().text();
+            return false;
+        }
+
+        QString new_admin_id;
+        if (query.next()) {
+            new_admin_id = query.value(0).toString();
+        } else {
+            // Обработка случая, когда в чате нет других участников
+            qDebug() << "No other members in chat";
             return false;
         }
 
         query.prepare("UPDATE chats SET admin = :new WHERE title = :title");
         query.bindValue(":new", new_admin_id);
         query.bindValue(":title", chatTitle);
+
         if (!query.exec()) {
-            qDebug() << "Error removing user from chat:" << query.lastError().text();
+            qDebug() << "Error updating chat admin:" << query.lastError().text();
             return false;
         }
-
-        removeUserFromChat(chatTitle, username);
     }
-    else
-    {
-        removeUserFromChat(chatTitle, username);
+
+    // Удаляем пользователя из чата в любом случае
+    if (!removeUserFromChat(chatTitle, username)) {
+        qDebug() << "Error removing user from chat";
+        return false;
     }
 
     return true;
 }
+
